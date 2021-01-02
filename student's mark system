@@ -1,0 +1,731 @@
+#include<stdio.h>
+#include <stdlib.h>
+#include <conio.h> 
+#include <string.h>
+
+//创立学生信息的结构体
+typedef struct tagstudent{
+	char name[20];  //姓名 
+	char stunum[25]; //学号 
+	int normalgrade; //平时成绩 
+	int finalgrade;  //期末成绩 
+	int generalgrade;  //总评成绩 
+	int rank;           //排名 
+}student;
+
+
+//创建链表
+typedef struct tagnode{
+	student stu; //学生信息
+	struct tagnode *next; 	//指向下一学生的指针 
+}Node;
+
+Node *Head=NULL; //创建头指针 
+
+
+void Inputstudent(); //录入学生信息
+
+void PrintStudent(); //排序并打印已录入的学生信息
+
+void print(Node* searchp); //打印成绩 
+
+void Sort1(Node*Head) ; //冒泡排序 按学号排 
+
+void Sort2(Node*Head) ; //冒泡排序 按姓名排 
+
+void Sort3(Node*Head);  //冒泡排序 按总成绩排 
+
+void SaveStudent(); //保存学生信息
+
+void ReadStudent(); //读取学生信息
+
+void FindStudent(); //查找学生信息
+
+Node* Find1(); //按学号查找 
+
+Node *Find2(); //按姓名查找 
+
+void Find3(); //按成绩区间段查找
+ 
+void ModifyStudent(); //修改某个学生的信息
+
+void DeleteStudent(); //删除学生信息
+
+void DeleteStudent(); //删除学生信息
+
+void Statisticalstudent(); //统计学生信息 
+int main()
+{
+
+ while (1)
+
+ {
+
+ printf("==============欢迎使用高校学生成绩管理系统V1.0==============\n");
+
+ printf("\t=======请选择功能列表=======\n");
+
+ printf("\t\t1.录入学生信息\n");
+
+ printf("\t\t2.打印学生信息\n");
+
+ printf("\t\t3.保存学生信息\n");
+
+ printf("\t\t4.导入学生信息\n");
+
+ printf("\t\t5.查询学生信息\n");
+
+ printf("\t\t6.修改学生信息\n");
+
+ printf("\t\t7.删除学生信息\n");
+
+ printf("\t\t8.统计学生信息\n");
+
+ printf("\t\t0.退出系统\n");
+
+
+
+ char ch;
+
+
+
+ //scanf("%c", &ch);
+
+ ch = _getch();
+
+
+
+ switch (ch)
+
+ {
+
+ case '1':Inputstudent(); break; //录入学生信息
+ case '2':PrintStudent(); break; //打印已录入的信息 
+ case '3':SaveStudent(); break; //保存信息
+ case '4':ReadStudent(); break; //读入信息 
+ case '5':FindStudent(); break; //查找信息 
+ case '6':ModifyStudent(); break; //修改信息 
+ case '7':DeleteStudent(); break; //删除信息 
+ case '8':Statisticalstudent(); break; //统计学生信息 
+ case '0':{
+ 	char x;
+ 	do{
+ 	printf("是否确认退出：是---Y/否---N\n"); 
+ 	x=_getch();
+ 	if(x=='y'||x=='Y'){
+	 printf("欢迎再次使用！");
+	 return 0;}
+ 	if(x=='n'||x=='N'){break;}
+ 	}while(x!='y'||x!='Y'||x!='n'||x!='N');
+	break;
+ } //退出系统 
+}
+}
+}
+
+
+
+
+//录入学生信息
+void Inputstudent()
+{
+printf("请输入姓名、学号、平时成绩、期末成绩\n"); 
+	int n=0;
+	Node *connectp;
+	connectp=Head;
+			while (Head != NULL && connectp->next  != NULL)
+
+ {
+ connectp =connectp->next  ;
+
+ }// 将connectp移动至链表的最后一个节点 
+
+	Node *newcodep= (Node*)malloc(sizeof(Node)); //开辟结点，为新的学生分配空间
+
+	 newcodep->next = NULL;
+
+
+
+ if (Head == NULL)
+
+ {Head =newcodep;
+ connectp= Head;
+}
+
+ else{
+ connectp->next= newcodep;//connectp的下一个节点为newNode
+ }
+
+	scanf("%s%s%d%d",newcodep->stu.name ,newcodep->stu.stunum ,&newcodep->stu.normalgrade ,&newcodep->stu.finalgrade ) ; //输入新的学生数据
+newcodep->stu.generalgrade = 0.4*(newcodep->stu.normalgrade)+0.6* (newcodep->stu.finalgrade);
+Node *checkp;//检查是否有重复学号 
+checkp=Head;
+while(checkp->next!=NULL && Head->next!=NULL ){
+if(strcmp(checkp->stu.stunum ,newcodep->stu.stunum )==0){
+	printf("该学号与已录入的信息存在重复,请检查输入的学号是否正确\n");
+  free(newcodep);//删掉最后一个节点 
+  connectp->next =NULL;//让链表中的最后一个节点的next变回NULL，否则无法输出 
+	n++;
+  break;
+}
+else 
+checkp=checkp->next;
+}
+if(n==0){
+system("cls");
+printf("\n数据添加成功....\n");
+ } 
+}
+
+//排序并打印已录入的学生信息
+
+void PrintStudent()
+
+{
+ system("cls");
+
+
+printf("请选择排序方式：按学号排序:1/\t按姓名排序：2/\t按总成绩排序：/3\n") ; 
+
+ char ch; 
+ ch = _getch();
+  printf("已录入的学生信息：\n");
+ switch (ch){ 
+ case '1':Sort1(Head); break; 
+ case '2':Sort2(Head); break; 
+ case '3':Sort3(Head); break; 
+ }
+}
+
+//打印成绩
+void print(Node* searchp){
+	while (searchp!= NULL)
+ {
+ printf("姓名:%s\t学号:%s\t平时成绩:%d\t期末成绩:%d\t总评成绩：%d\n", 
+
+ searchp->stu.name , 
+
+ searchp->stu.stunum,
+
+ searchp->stu.normalgrade, 
+
+ searchp->stu.finalgrade,
+ 
+ searchp->stu.generalgrade);
+
+searchp=searchp->next;
+
+ }
+}
+
+
+
+
+  
+ //冒泡排序 按学号排 
+ void Sort1(Node* Head) {
+   Node *p, *q;
+    for (p=Head; p!= NULL; p=p->next)
+        for (q=p->next; q!=NULL; q=q->next)
+           if (strcmp(p->stu.stunum  ,q->stu.stunum  ) >=0 )//根据学号从小到大排序
+            {
+                char b[20]; strcpy(b,p->stu.stunum ); strcpy(p->stu.stunum ,q->stu.stunum ); strcpy(q->stu.stunum ,b);
+              int t2 = p->stu.normalgrade; p->stu.normalgrade= q->stu.normalgrade; q->stu.normalgrade= t2;
+                  int t3 = p->stu.finalgrade ; p->stu.finalgrade= q->stu.finalgrade; q->stu.finalgrade= t3;
+                    int t4= p->stu.generalgrade  ; p->stu.generalgrade = q->stu.generalgrade ; q->stu.generalgrade = t4;
+                    char a[20]; strcpy(a,p->stu.name); strcpy(p->stu.name,q->stu.name); strcpy(q->stu.name,a );
+                    
+             }
+    print(Head);
+     }
+
+ //冒泡排序 按姓名排 
+ void Sort2(Node* Head) {
+   Node *p, *q;
+    for (p=Head; p!= NULL; p=p->next)
+        for (q=p->next; q!=NULL; q=q->next)
+           if (strcmp(p->stu.name  ,q->stu.name ) >=0)//根据姓名从小到大排序
+            {
+                char b[20]; strcpy(b,p->stu.stunum ); strcpy(p->stu.stunum ,q->stu.stunum ); strcpy(q->stu.stunum ,b);
+                   int t2 = p->stu.normalgrade; p->stu.normalgrade= q->stu.normalgrade; q->stu.normalgrade= t2;
+                  int t3 = p->stu.finalgrade ; p->stu.finalgrade= q->stu.finalgrade; q->stu.finalgrade= t3;
+                    int t4= p->stu.generalgrade  ; p->stu.generalgrade = q->stu.generalgrade ; q->stu.generalgrade = t4;
+                    char a[20]; strcpy(a,p->stu.name); strcpy(p->stu.name,q->stu.name); strcpy(q->stu.name,a );
+                    
+             }
+     print(Head);
+     }
+     
+ //冒泡排序 按总成绩排 
+ void Sort3(Node* Head) {
+   Node *p, *q;
+    for (p=Head; p!= NULL; p=p->next)
+        for (q=p->next; q!=NULL; q=q->next)
+           if (p->stu.generalgrade  < q->stu.generalgrade  )//根据总成绩从大到小排序
+            {
+                char b[20]; strcpy(b,p->stu.stunum ); strcpy(p->stu.stunum ,q->stu.stunum ); strcpy(q->stu.stunum ,b );
+               int t2 = p->stu.normalgrade; p->stu.normalgrade= q->stu.normalgrade; q->stu.normalgrade= t2;
+                  int t3 = p->stu.finalgrade ; p->stu.finalgrade= q->stu.finalgrade; q->stu.finalgrade= t3;
+                    int t4= p->stu.generalgrade  ; p->stu.generalgrade = q->stu.generalgrade ; q->stu.generalgrade = t4;
+                    char a[20]; strcpy(a,p->stu.name); strcpy(p->stu.name,q->stu.name); strcpy(q->stu.name,a );
+                    
+             }
+     print(Head);
+     }
+     
+
+//保存学生信息
+void SaveStudent()
+{
+ system("cls");
+ FILE *pFile = fopen("stu.xls", "w");
+
+ if (pFile == 0)
+ {
+ printf("打开文件失败\n");
+ return;
+ }
+
+ //把数据写到文件里 
+Node *writep;
+
+ writep = Head;
+
+ while (writep!= NULL)
+
+ {
+
+ fprintf(pFile, "%s %s %d %d %d\n", writep->stu.name , writep->stu.stunum ,writep->stu.normalgrade , writep->stu.finalgrade ,writep->stu.generalgrade );
+
+ writep= writep->next ;
+
+ }
+
+ printf("数据保存成功\n");
+
+ //关闭文件
+ fclose(pFile);
+}
+
+
+//读取学生信息
+void ReadStudent()
+{
+ system("cls");
+
+ //首先删除链表数据，然后从文件中读取数据
+Node *connectp, *deletep;
+ connectp=deletep=Head;
+
+ while (deletep!= NULL)
+
+ {
+ //逐个删除链表中的数据
+connectp= connectp->next ;
+
+ free(deletep);
+ deletep = connectp;
+ }
+ Head = NULL;
+
+ //打开文件
+FILE *pFile = fopen("stu.txt", "r");
+ if (pFile == 0)
+ {
+ printf("打开文件失败\n");
+ return;
+ }
+
+ //读取数据
+else{
+printf("数据导入成功\n") ; 
+}
+while (!feof(pFile)) //feof函数的作用是检查文件是否读到末尾 
+
+ {
+
+ //分配空间以存储数据
+
+Node *newcodep= (Node*)malloc(sizeof(Node));
+
+ //从文件中读取
+
+fscanf(pFile, "%s %s %d %d %d\n", &newcodep->stu.name,&newcodep->stu.stunum,&newcodep->stu.normalgrade ,&newcodep->stu.finalgrade,&newcodep->stu.generalgrade);
+
+ //创建链表
+
+if (Head == NULL)
+
+ {
+ Head =newcodep;
+ connectp= Head;
+ }
+ else
+ {
+ connectp->next=newcodep;//p的下一个节点为temp
+
+ connectp= connectp->next ;
+
+connectp->next =NULL;
+
+ } 
+
+ }
+fclose(pFile); //关闭文件
+}
+
+
+void Statisticalstudent(){
+	double q=0,w=0,e=0,r=0,t=0,y=0,u=0,i=0,o=0,p=0,a=0,s=0,d=0,f=0,g=0;
+	 ReadStudent();
+	 Node *readp;
+	readp=Head;
+	int count=0;
+	while (readp != NULL)
+ {count++;
+ readp =readp->next ;
+ }//统计学生总人数 
+ 	readp=Head;
+ int sum1=0,sum2=0,sum3=0;
+ 	while (readp != NULL)
+ {sum1+=readp->stu.normalgrade;
+ sum2+=readp->stu.finalgrade;
+ sum3+=readp->stu.generalgrade;
+ readp =readp->next ;
+ }//统计学生总分 
+	readp=Head;
+	 while(readp!=NULL)
+{ if(readp->stu.normalgrade<60){q++;}
+  if(readp->stu.normalgrade>=60 && readp->stu.normalgrade<70){w++;}
+  if(readp->stu.normalgrade>=70 && readp->stu.normalgrade<80){e++;}
+  if(readp->stu.normalgrade>=80 && readp->stu.normalgrade<90){r++;}	
+  if(readp->stu.normalgrade>=90 && readp->stu.normalgrade<=100){t++;}		
+  if(readp->stu.finalgrade<60){y++;}
+  if(readp->stu.finalgrade>=60 && readp->stu.finalgrade<70){u++;}
+  if(readp->stu.finalgrade>=70 && readp->stu.finalgrade<80){i++;}
+  if(readp->stu.finalgrade>=80 && readp->stu.finalgrade<90){o++;}	
+  if(readp->stu.finalgrade>=90 && readp->stu.finalgrade<=100){p++;}
+  if(readp->stu.generalgrade<60){a++;}
+  if(readp->stu.generalgrade>=60 && readp->stu.generalgrade<70){s++;}
+  if(readp->stu.generalgrade>=70 && readp->stu.generalgrade<80){d++;}
+  if(readp->stu.generalgrade>=80 && readp->stu.generalgrade<90){f++;}	
+  if(readp->stu.generalgrade>=90 && readp->stu.generalgrade<=100){g++;}
+   readp =readp->next ;
+   } 
+  double q1,w1,e1,r1,t1,y1,u1,i1,o1,p1,a1,s1,d1,f1,g1; 
+  q1=(q/count)*100; w1=(w/count)*100;e1=(e/count)*100;r1=(r/count)*100;t1=(t/count)*100;y1=(y/count)*100;u1=(u/count)*100;i1=(i/count)*100;
+  o1=(o/count)*100;p1=(p/count)*100;a1=(a/count)*100;s1=(s/count)*100;d1=(d/count)*100;f1=(f/count)*100;g1=(g/count)*100;
+  double average1,average2,average3;
+  average1=sum1/count;average2=sum2/count;average3=sum3/count;
+  printf("-----------------------------------------------------------------------------\n");
+	printf("          | 项目 | 不及格 | 60~69分 | 70~19分 | 80~89分 | 90~100分 | 平均分 |\n");
+	printf("-----------------------------------------------------------------------------\n");
+	printf("平时      | 人数 |  %3.0f   |   %3.0f   |   %3.0f   |   %3.0f   |   %3.0f    |        |\n",q,w,e,r,t,average1) ;
+	printf("          |--------------------------------------------------------  %3.1f   |\n",average1) ;
+	printf("成绩      | 比例 | %3.2f%% |  %3.2f%%  |  %3.2f%%  |  %3.2f%% |  %3.2f%%  |        |\n",q1,w1,e1,r1,t1) ;
+	printf("-----------------------------------------------------------------------------\n");
+	printf("期末      | 人数 |  %3.0f   |   %3.0f   |   %3.0f   |   %3.0f   |   %3.0f    |        |\n",y,u,i,o,p) ;
+	printf("          |--------------------------------------------------------  %3.1f   |\n",average2) ;
+	printf("成绩      | 比例 | %3.2f%% |  %3.2f%% |  %3.2f%% |  %3.2f%% |  %3.2f%%  |        |\n",y1,u1,i1,o1,p1) ;
+	printf("-----------------------------------------------------------------------------\n");
+	printf("总评      | 人数 |  %3.0f   |   %3.0f   |   %3.0f   |   %3.0f   |   %3.0f    |        |\n",a,s,d,f,g) ;
+	printf("          |--------------------------------------------------------  %3.1f   |\n",average3) ;
+	printf("成绩      | 比例 | %3.2f%% |  %3.2f%% |  %3.2f%%  |  %3.2f%%  |  %3.2f%%  |        |\n",a1,s1,d1,f1,g1) ;
+	printf("-----------------------------------------------------------------------------\n");
+	
+}
+
+
+//查询学生信息
+void FindStudent()
+
+{
+ system("cls");
+printf("请选择查询方式：按学号查询:1/\t按姓名查询：2/\t按总成绩区间查询：/3\n") ; 
+
+ char ch; 
+ ch = _getch();
+  switch (ch){ 
+ case '1':{
+ Node *j=Find1();
+ if(j!= NULL){
+ 		printf("姓名:%s\t学号:%s\t平时成绩:%d\t期末成绩:%d\t总评成绩：%d\t排名：%d\n", j->stu.name,j->stu.stunum,j->stu.normalgrade,j->stu.finalgrade,j->stu.generalgrade,j->stu.rank);
+
+ }
+  break; } 
+ case '2':{
+ Node *p=Find2();
+ if(p!= NULL){
+ 	printf("姓名:%s\t学号:%s\t平时成绩:%d\t期末成绩:%d\t总评成绩：%d\t排名：%d\n", p->stu.name,p->stu.stunum,p->stu.normalgrade,p->stu.finalgrade,p->stu.generalgrade,p->stu.rank );
+ }
+  break; } 
+ case '3': Find3(); break;
+}
+} 
+
+Node* Find1()
+{
+ system("cls");
+char a[25];
+ printf("请输入要查找的学生的学号:\n");
+ scanf("%s", a);
+ReadStudent(); //先从文件中读取到链表中
+ Node* searchp;
+ 	int m;
+ 	 Node *p, *q,*i;
+ 	 
+    for (p=Head; p!= NULL; p=p->next)
+        for (q=p->next; q!=NULL; q=q->next)
+           if (p->stu.generalgrade  < q->stu.generalgrade  )//根据总成绩从大到小排序
+            {
+                char b[20]; strcpy(b,p->stu.stunum ); strcpy(p->stu.stunum ,q->stu.stunum ); strcpy(q->stu.stunum ,b );
+               int t2 = p->stu.normalgrade; p->stu.normalgrade= q->stu.normalgrade; q->stu.normalgrade= t2;
+                  int t3 = p->stu.finalgrade ; p->stu.finalgrade= q->stu.finalgrade; q->stu.finalgrade= t3;
+                    int t4= p->stu.generalgrade  ; p->stu.generalgrade = q->stu.generalgrade ; q->stu.generalgrade = t4;
+                    char a[20]; strcpy(a,p->stu.name); strcpy(p->stu.name,q->stu.name); strcpy(q->stu.name,a );
+                    
+             }
+             
+            for(i=Head,m=1,i->stu.rank=1;i->next!=NULL;i=i->next)
+		{
+			if(i->stu.generalgrade!=i->next->stu.generalgrade) i->next->stu.rank=++m;// 
+			else {
+			 i->next->stu.rank=i->stu.rank;m++;//成绩相同，则将前一名的名次赋给它，再让m自加，保证下一个信息的名次往后延一位 
+			}
+		}
+ searchp = Head;
+ 
+ while (searchp != NULL)
+ {
+ if (strcmp(searchp->stu.stunum ,a)==0 )
+ {
+ return searchp;
+ }
+ searchp = searchp->next ;
+ }
+ //遍历完链表也没有找到信息
+if (searchp == NULL)
+ {
+ printf("没有该学生的信息\n");
+ return NULL;
+ }
+ return NULL;
+}
+
+
+Node *Find2()
+{
+ system("cls");
+ char a[20];
+ printf("请输入要查找的学生的姓名:\n");
+ scanf("%s", a);
+ReadStudent(); //先从文件中读取到链表中
+ Node* searchp;
+ 	int m;
+ 	 Node *p, *q,*i;
+ 	 
+    for (p=Head; p!= NULL; p=p->next)
+        for (q=p->next; q!=NULL; q=q->next)
+           if (p->stu.generalgrade  < q->stu.generalgrade  )//根据总成绩从大到小排序
+            {
+                char b[20]; strcpy(b,p->stu.stunum ); strcpy(p->stu.stunum ,q->stu.stunum ); strcpy(q->stu.stunum ,b );
+               int t2 = p->stu.normalgrade; p->stu.normalgrade= q->stu.normalgrade; q->stu.normalgrade= t2;
+                  int t3 = p->stu.finalgrade ; p->stu.finalgrade= q->stu.finalgrade; q->stu.finalgrade= t3;
+                    int t4= p->stu.generalgrade  ; p->stu.generalgrade = q->stu.generalgrade ; q->stu.generalgrade = t4;
+                    char a[20]; strcpy(a,p->stu.name); strcpy(p->stu.name,q->stu.name); strcpy(q->stu.name,a );
+                    
+             }
+             
+            for(i=Head,m=1,i->stu.rank=1;i->next!=NULL;i=i->next)
+		{
+			if(i->stu.generalgrade!=i->next->stu.generalgrade) i->next->stu.rank=++m;
+			else {
+			 i->next->stu.rank=i->stu.rank;m++;//成绩相同，则将前一名的名次赋给它，再让m自加，保证下一个信息的名次往后延一位 
+			}
+		}
+ searchp = Head;
+ while (searchp != NULL)
+ {
+ if (strcmp(searchp->stu.name ,a)==0)
+ {
+ return searchp;
+ }
+ searchp = searchp->next ;
+ }
+ //遍历完链表也没有找到信息
+if (searchp== NULL)
+ {
+ printf("没有该学生的信息\n");
+ return NULL;
+ }
+ return NULL;
+}
+
+void Find3() 
+{
+ system("cls");
+int a,b;
+int k=0;
+ printf("请输入要查询的成绩区间:\n");
+ printf("请输入成绩区间下限:");
+ scanf("%d",&a);
+ printf("\n请输入成绩区间上限:");
+ scanf("%d",&b);
+ReadStudent(); //先从文件中读取到链表中
+ Node* searchp;
+ int m;
+ 	 Node *p, *q,*i;
+ 	 
+    for (p=Head; p!= NULL; p=p->next)
+        for (q=p->next; q!=NULL; q=q->next)
+           if (p->stu.generalgrade  < q->stu.generalgrade  )//根据总成绩从大到小排序
+            {
+                char b[20]; strcpy(b,p->stu.stunum ); strcpy(p->stu.stunum ,q->stu.stunum ); strcpy(q->stu.stunum ,b );
+               int t2 = p->stu.normalgrade; p->stu.normalgrade= q->stu.normalgrade; q->stu.normalgrade= t2;
+                  int t3 = p->stu.finalgrade ; p->stu.finalgrade= q->stu.finalgrade; q->stu.finalgrade= t3;
+                    int t4= p->stu.generalgrade  ; p->stu.generalgrade = q->stu.generalgrade ; q->stu.generalgrade = t4;
+                    char a[20]; strcpy(a,p->stu.name); strcpy(p->stu.name,q->stu.name); strcpy(q->stu.name,a );
+                    
+             }
+             
+            for(i=Head,m=1,i->stu.rank=1;i->next!=NULL;i=i->next)
+		{
+			if(i->stu.generalgrade!=i->next->stu.generalgrade) i->next->stu.rank=++m;
+			else {
+			 i->next->stu.rank=i->stu.rank;m++;//成绩相同，则将前一名的名次赋给它，再让m自加，保证下一个信息的名次往后延一位 
+			}
+		}
+ searchp = Head;
+ 
+ while (searchp != NULL)
+ {
+  if(searchp->stu.generalgrade>=a && searchp->stu.generalgrade<=b )
+ {
+ printf("姓名:%s\t学号:%s\t平时成绩:%d\t期末成绩:%d\t总评成绩：%d\t排名：%d\n", searchp->stu.name,searchp->stu.stunum,searchp->stu.normalgrade,searchp->stu.finalgrade,searchp->stu.generalgrade,searchp->stu.rank );
+ k++;
+ }
+ searchp = searchp->next ;
+ }
+ if (k==0)
+ {
+ printf("没有该成绩区间段的学生\n");
+ }
+ 
+}
+
+//修改某个学生的信息
+void ModifyStudent()
+{
+ system("cls");
+ char a[20];
+ printf("请输入要修改学生信息的学号:\n");
+ scanf("%s", a);
+ //先把文件中的数据读取到链表中
+ReadStudent();
+ Node* rewritep;
+ rewritep = Head;
+ 
+ while (rewritep!= NULL)
+ {
+ if (strcmp(rewritep->stu.stunum ,a)==0)
+ {
+ int d=rewritep->stu.normalgrade ;
+ int e=rewritep->stu.finalgrade ;
+ int f=rewritep->stu.generalgrade ;
+ printf("请输入要修改的平时成绩  期末成绩\n");
+ scanf("%d %d",  &rewritep->stu.normalgrade , &rewritep->stu.finalgrade );
+ rewritep->stu.generalgrade  = 0.4*(rewritep->stu.normalgrade )+0.6* (rewritep->stu.finalgrade );
+ char x;
+ do{
+ printf("是否确认修改该学生信息：是---Y/否---N\n");
+x=_getch();
+ if(x=='y' || x=='Y'){
+ 	printf("修改成功!\n");
+ break;
+ }
+if(x=='n'||x=='N'){
+	printf("已取消修改\n");
+	 rewritep->stu.normalgrade=d;
+	 rewritep->stu.finalgrade=e;
+	 rewritep->stu.generalgrade=f;
+	 break;
+}
+}while(x=='y' || x=='Y'||x=='n'||x=='N');
+break; }
+ rewritep = rewritep->next ;
+ }
+ if (rewritep == NULL)
+ {
+ printf("没有该学生信息!\n");
+ }
+}
+
+//删除学生信息
+void DeleteStudent()
+{
+ system("cls");
+ char a[25];
+ printf("请输入要删除学生信息的学号:\n");
+ scanf("%s", a);
+ 
+ReadStudent();  //先把文件中的数据读取到链表
+ Node *connectp, *deletep;
+ connectp =Head;
+
+ //判断是否是头节点
+if (strcmp(Head->stu.stunum,a)==0)
+ {
+ char x;
+ do{
+ printf("是否确认修改该学生信息：是---Y/否---N\n");
+x=_getch();
+ if(x=='y' || x=='Y'){
+ 	deletep = Head;
+ Head = Head->next ;//头指针指向删除元素后的首元素
+ 	free(deletep);//删除结点 
+printf("删除成功");
+ break;
+ }
+if(x=='n'||x=='N'){
+	printf("已取消删除\n");
+	 break;
+}
+}while(x=='y' || x=='Y'||x=='n'||x=='N');
+return;
+ }
+
+ //不是头节点
+while (connectp->next != NULL)
+ {
+ if (strcmp(connectp->next->stu.stunum ,a)==0)//判断下一个节点是不是要删除的信息 
+ {
+char x;
+ do{
+ printf("是否确认修改该学生信息：是---Y/否---N\n");
+x=_getch();
+ if(x=='y' || x=='Y'){
+ 	deletep=connectp->next ;//将删除的指针连接到该节点 
+ connectp->next = connectp->next->next ;//删除该节点指针跳过此节点 
+ 	free(deletep);//删除结点 
+printf("删除成功");
+ break;
+ }
+if(x=='n'||x=='N'){
+	printf("已取消删除\n");
+	 break;
+}
+}while(x=='y' || x=='Y'||x=='n'||x=='N');
+return;
+ }
+
+ connectp = connectp->next ;//指向下一个节点
+
+if (connectp->next  == NULL)
+ {break; //判断是否到了链表的结尾
+}
+ }
+ if (connectp->next  == NULL)
+ {
+ printf("没有该学生信息\n");
+ }
+}
